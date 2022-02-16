@@ -1,25 +1,52 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import Style from "./styles.module.scss";
+import { connect } from "react-redux";
+import { addToList, mark, clean } from "./actions";
 
-function App() {
+const App = (props) => {
+  const [text, setText] = useState("");
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div className={Style.wrapper}>
+      <h1>To do list</h1>
+      <div className={Style.add_form}>
+        <input
+          type="text"
+          placeholder="Add to do list"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+        <button
+          onClick={() => {
+            setText("");
+            props.addToList(text);
+          }}
         >
-          Learn React
-        </a>
-      </header>
+          Add
+        </button>
+      </div>
+      <div className={Style.list}>
+        {props.list.map((item, index) => (
+          <div
+            onClick={() => props.mark(item.id)}
+            className={item.completed ? Style["done"] : ""}
+            key={index}
+          >
+            {item.title}
+          </div>
+        ))}
+      </div>
+
+      <button className={Style.clean} onClick={() => props.clean()}>
+        Clear Completed
+      </button>
     </div>
   );
-}
+};
 
-export default App;
+const mapStateToProps = (state) => {
+  return {
+    list: state.list,
+  };
+};
+
+export default connect(mapStateToProps, { addToList, mark, clean })(App);
